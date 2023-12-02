@@ -40,7 +40,7 @@ def fit(function, x, y, xerr=None, yerr=None, p0=None, **kwargs):
         fitter.set_job(fit_type=2)
 
     out = fitter.run()
-    return out.beta, np.sqrt(np.diag(out.cov_beta))
+    return out.beta, out.sd_beta
 
 
 

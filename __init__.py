@@ -8,8 +8,8 @@
 import numpy as np
 from scipy import odr
 from inspect import signature
-
-
+import matplotlib.pyplot as plt
+from cycler import cycler
 
 def fit(function, x, y, xerr=None, yerr=None, p0=None, **kwargs):
     '''
@@ -101,3 +101,35 @@ def confidenceband(xfit, x0, y0, popt, func):
 
     return dy
 
+
+#----------------------------------------------------------
+def labels(xlabel='x', ylabel='y', grid=True,  ax=None):
+    if ax is None:
+        plt.xlabel(xlabel)
+        plt.ylabel(ylabel)
+        plt.grid(grid)
+    else:
+        ax.set_xlabel(xlabel)
+        ax.set_ylabel(ylabel)
+        ax.grid(grid)
+
+
+def loadstyle(kit_colors=False):
+    if kit_colors:
+        cvals = ['#008e7b', '#4664aa', '#a22223', '#8cb63c', '#a3107c', '#23a1e0', '#df9b1b',  '#fce500', '#a7822e', '#7f7f7f']
+        print('Using KIT colors.')
+    else:
+        cvals = ['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728', '#9467bd', '#8c564b', '#e377c2', '#7f7f7f', '#bcbd22', '#17becf']
+        print('Using standard colors.')
+
+    custom_rcParams = {
+        'axes.labelsize': 16,
+        'legend.fontsize': 12,
+        'xtick.labelsize': 14,
+        'ytick.labelsize': 14,
+        'axes.grid': True,
+        'figure.figsize': (12,6),
+        'axes.prop_cycle': cycler('color', cvals),
+        }
+    plt.rcParams.update(custom_rcParams)
+    print('Custom style set.')

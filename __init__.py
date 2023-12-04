@@ -2,7 +2,7 @@
 #
 # Python 3.11.5
 # 
-# 2023-12-02
+# Creation: 2023-12-02
 # Lu Me
 
 import numpy as np
@@ -10,8 +10,9 @@ from scipy import odr
 from inspect import signature
 import matplotlib.pyplot as plt
 from cycler import cycler
+import uncertainties.unumpy as unp
 
-def fit(function, x, y, xerr=None, yerr=None, p0=None, **kwargs):
+def fit(function, x, y, xerr=None, yerr=None, p0=None, return_out=False, **kwargs):
     '''
     ODR and OLS
 
@@ -20,11 +21,14 @@ def fit(function, x, y, xerr=None, yerr=None, p0=None, **kwargs):
     - x, y: data arrays
     - xerr, yerr: optional absolute x,y ucertainties
     - p0: initial parameter guess (list type)
+    - return_out: returns Output object
     - **kwargs: of fitter
 
     ## returns
     - popt: optimized parameters in array
     - perr: popt 1 sigma uncertainty
+    ---
+    Output object
     '''
 
     #inital guess
@@ -40,7 +44,36 @@ def fit(function, x, y, xerr=None, yerr=None, p0=None, **kwargs):
         fitter.set_job(fit_type=2)
 
     out = fitter.run()
-    return out.beta, out.sd_beta
+    
+
+    if return_out:
+        return out.beta, out.sd_beta, out
+    else:    
+        return out.beta, out.sd_beta
+
+def fitinfo(variables, out, function_name=None,rel_x=0.02, rel_y=0.98, ax=None):
+    uvals = unp.uarray(out.beta, out.sd_beta)
+    if type(variables) is str:
+        if ',' in variables:
+            variables = variables.split(', ')
+        else:
+            variables = variables.split(' ')
+
+
+    title = f'$\chi^2 /\,$dof$\,=\,{out.res_var:.3f}$'
+
+    if function_name is not None:
+        title = function_name + f'\n' + title
+
+    for nval, uval in zip(variables, uvals):
+        title += f'\n${nval}\,=\,{uval:L}$'
+    
+    if ax is None:
+        plt.text(rel_x, rel_y, title, size=12, ha='left', va='top', transform=plt.gca().transAxes)
+    else:
+        plt.text(rel_x, rel_y, title, size=12, ha='left', va='top', transform=ax.transAxes)
+
+    return title
 
 
 
@@ -116,7 +149,17 @@ def labels(xlabel='x', ylabel='y', grid=True,  ax=None):
 
 def loadstyle(kit_colors=False):
     if kit_colors:
-        cvals = ['#008e7b', '#4664aa', '#a22223', '#8cb63c', '#a3107c', '#23a1e0', '#df9b1b',  '#fce500', '#a7822e', '#7f7f7f']
+        cvals = ['#008e7b', #green
+                '#eb4a00', #orange
+                '#128edb', #light blue
+                '#88c906', #light green
+                '#d10434', #red-purple
+                '#4664aa', #blue
+                '#7f7f7f', #grey
+                '#fce500', #yellow
+                '#a7822e', #brown
+                '#a3107c', #purple    red:#a22223
+                        ]
         print('Using KIT colors.')
     else:
         cvals = ['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728', '#9467bd', '#8c564b', '#e377c2', '#7f7f7f', '#bcbd22', '#17becf']

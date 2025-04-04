@@ -10,7 +10,7 @@ from scipy import odr
 from inspect import signature
 import matplotlib.pyplot as plt
 from cycler import cycler
-import uncertainties.unumpy as unp
+import uncertainties.unumpy as unp 
 
 def fit(function, x, y, xerr=None, yerr=None, p0=None, return_out=False, **kwargs):
     '''
@@ -189,3 +189,72 @@ def loadstyle(kit_colors=False):
     }
     plt.rcParams.update(custom_rcParams)
     print('Custom style set.')
+
+
+def errorPrintFormatting(x, xstat, xsys):
+    ''' 
+    Print the statistical and systematic error, formatted correctly to the significant decimal places of the errors.
+
+    Parameters:
+    x, xstat, xsys (floats): Value and errors.
+
+    Returns: 
+    Formatted String.
+    '''
+
+    def round_to_two_significant(num):
+        if num == 0:
+            return 0
+        # most significant digit in 10^(-magnitude) position 
+        magnitude = int(np.floor(np.log10(abs(num))))
+        # scale to 2 decimal place
+        scale = 10**(magnitude - 1)
+        return round(num / scale) * scale
+    
+    def format_uncertainty(value):
+        if value == int(value):
+            return str(int(value))
+        
+        # number of decimals needed
+        num_decimals = max(0, -int(np.floor(np.log10(abs(value)))) + 1)
+        formatted_value = f"{value:.{num_decimals}f}"
+        # remove trailing zeros and decimal/s
+        return formatted_value.rstrip('0').rstrip('.') if '.' in formatted_value else formatted_value
+
+
+    xsys_rounded = round_to_two_significant(xsys)
+    xstat_rounded = round_to_two_significant(xstat)
+
+    # relevant digits
+    sys_decimals = (-int(np.floor(np.log10(abs(xsys_rounded)))) + 1) if xsys_rounded != 0 else 0
+    stat_decimals = (-int(np.floor(np.log10(abs(xstat_rounded)))) + 1) if xstat_rounded != 0 else 0
+    decimals = max(sys_decimals, stat_decimals, 0)
+
+    x_str = f"{x:.{decimals}f}"
+    xsys_str = format_uncertainty(xsys_rounded)
+    xstat_str = format_uncertainty(xstat_rounded)
+
+    return f"{x_str} \\pm {xstat_str}(stat) \\pm {xsys_str}(sys)"
+
+
+def calculateErrors(uarr, text=''):
+    '''
+    Calculate the statistical and combined systematic error *separately* of a measurement series or the results of one.
+    
+    Parameters:
+    uarr (uncertainty array): the individual values with their (propagated) systematic errors.
+    text (string, optional): additional text for printing the result.
+    
+    Returns:
+    nominal value (float)
+    statistical error (float)
+    systematic error (float) 
+    '''
+
+    x_nom = np.mean(uarr).n
+    x_stat = np.std(unp.nominal_values(uarr))
+    x_sys = np.mean(uarr).s 
+
+    output_string = errorPrintFormatting(x_nom, x_stat, x_sys)
+    print(f'{text} = {output_string}')
+    return (x_nom, x_stat, x_sys)

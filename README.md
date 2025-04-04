@@ -5,6 +5,15 @@ A python wrapper of misc. scipy, numpy and matplotlib operations to streamline s
 The scipy ODR and OLS fitting methods are combined into one one `fit` function.
 Also functions for the calculation of the [prediction and confidence](https://en.wikipedia.org/wiki/Confidence_and_prediction_bands) bands of two dimensional data is provided.
 
+
+Install with 
+```
+pip install git+https://github.com/LEMettler/lumiere.git
+```
+
+or by cloning and installing locally!
+
+
 ## Example
 
 ![img](./ExampleFigure.png)

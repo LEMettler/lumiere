@@ -1,0 +1,12 @@
+Metadata-Version: 2.1
+Name: lumiere
+Version: 0.1.0
+Summary: Python wrapper to streamline data fitting, error and uncertainty handling.
+Home-page: https://https://github.com/LEMettler/lumiere
+Author: Lukas E. Mettler
+License: MIT
+Platform: UNKNOWN
+License-File: LICENSE.md
+
+UNKNOWN
+
